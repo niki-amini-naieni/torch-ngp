@@ -68,4 +68,5 @@ tzdata==2023.3
 unattended-upgrades==0.1
 urllib3==1.25.8
 zipp==3.17.0
-
+imageio[ffmpeg] 
+imageio[pyav]
