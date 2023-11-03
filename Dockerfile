@@ -14,18 +14,24 @@ RUN apt install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss
 # install python3-pip
 #RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3
 RUN apt install -y python3-pip
-RUN apt update && apt install -y ninja-build
+RUN apt update && apt install -y ninja-build pkg-config cmake-data libgirepository1.0-dev libcairo2-dev libjpeg-dev libgif-dev
 
 #RUN pip3.10 install setuptools
 # install dependencies via pip
 # Only install jax/jaxlib to version 0.4.1 for st
 #RUN pip3.10 install numpy scipy six wheel
+#ARG UID
+#RUN useradd -u $UID --create-home duser && \
+#    echo "duser:duser" | chpasswd && \
+#    adduser duser sudo
+#USER duser
+
 RUN pip3 install setuptools numpy scipy six wheel
 
 ADD requirements.txt reqs.txt
 RUN pip3 install -r reqs.txt
 
-RUN pip3 install torch==1.10.0+cu113 torchvision==0.11.0+cu113 torchaudio==0.10.0 -f https://download.pytorch.org/whl/torch_stable.html
+#RUN pip3 install torch==1.10.0+cu113 torchvision==0.11.0+cu113 torchaudio==0.10.0 -f https://download.pytorch.org/whl/torch_stable.html
 
-WORKDIR /home/
+WORKDIR /home/duser
 
