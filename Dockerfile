@@ -30,8 +30,18 @@ RUN pip3 install setuptools numpy scipy six wheel
 
 ADD requirements.txt reqs.txt
 RUN pip3 install -r reqs.txt
+RUN pip3 install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu113
+#RUN pip3 install torch==1.11.0+cu113 torchvision==0.11.0+cu113 torchaudio==0.11.0 -f https://download.pytorch.org/whl/torch_stable.html
+#RUN pip3 uninstall -y torchaudio 
+#RUN pip3 install torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu113
 
-#RUN pip3 install torch==1.10.0+cu113 torchvision==0.11.0+cu113 torchaudio==0.10.0 -f https://download.pytorch.org/whl/torch_stable.html
+RUN export TORCH_CUDA_ARCH_LIST="7.5" 
+ADD scripts/install_ext.sh scripts/install_ext.sh
+ADD ./raymarching ./raymarching
+ADD ./gridencoder ./gridencoder
+ADD ./shencoder ./shencoder
+ADD ./freqencoder ./freqencoder
+RUN TORCH_CUDA_ARCH_LIST="7.5" bash scripts/install_ext.sh
 
 WORKDIR /home/duser
 
