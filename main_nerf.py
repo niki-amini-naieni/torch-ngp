@@ -2,7 +2,7 @@ import torch
 import argparse
 
 from nerf.provider import NeRFDataset
-#from nerf.gui import NeRFGUI
+from nerf.gui import NeRFGUI
 from nerf.utils import *
 
 from functools import partial
@@ -114,9 +114,8 @@ if __name__ == '__main__':
         trainer = Trainer('ngp', opt, model, device=device, workspace=opt.workspace, criterion=criterion, fp16=opt.fp16, metrics=metrics, use_checkpoint=opt.ckpt)
 
         if opt.gui:
-            pass
-            #gui = NeRFGUI(opt, trainer)
-            #gui.render()
+            gui = NeRFGUI(opt, trainer)
+            gui.render()
         
         else:
             test_loader = NeRFDataset(opt, device=device, type='test').dataloader()
@@ -141,9 +140,8 @@ if __name__ == '__main__':
         trainer = Trainer('ngp', opt, model, device=device, workspace=opt.workspace, optimizer=optimizer, criterion=criterion, ema_decay=0.95, fp16=opt.fp16, lr_scheduler=scheduler, scheduler_update_every_step=True, metrics=metrics, use_checkpoint=opt.ckpt, eval_interval=50)
 
         if opt.gui:
-            pass
-            #gui = NeRFGUI(opt, trainer, train_loader)
-            #gui.render()
+            gui = NeRFGUI(opt, trainer, train_loader)
+            gui.render()
         
         else:
             valid_loader = NeRFDataset(opt, device=device, type='val', downscale=1).dataloader()
