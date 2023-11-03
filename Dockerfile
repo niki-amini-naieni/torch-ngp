@@ -43,5 +43,6 @@ ADD ./shencoder ./shencoder
 ADD ./freqencoder ./freqencoder
 RUN TORCH_CUDA_ARCH_LIST="7.5" bash scripts/install_ext.sh
 
+RUN touch /root/.bashrc && echo "alias python=python3" >> /root/.bashrc
 WORKDIR /home/duser
 
