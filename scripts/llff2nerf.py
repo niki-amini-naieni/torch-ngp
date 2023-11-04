@@ -68,7 +68,7 @@ if __name__ == '__main__':
     parser.add_argument('--downscale', type=float, default=8, help="image size down scale, e.g., 4")
     parser.add_argument('--hold', type=int, default=8, help="hold out for validation every $ images")
     parser.add_argument('--scene', type=str, help='scene name')
-    parser.add_argument('--data_split_file', type=str, help='file wih data splits', default='../llff_data_splits.json')
+    parser.add_argument('--data_split_file', type=str, help='file wih data splits', default='llff_data_splits.json')
 
     opt = parser.parse_args()
     print(f'[INFO] process {opt.path}')
