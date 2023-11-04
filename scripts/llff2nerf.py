@@ -5,6 +5,7 @@ import math
 import json
 import trimesh
 import argparse
+import json
 
 # returns point closest to both rays of form o+t*d, and a weight factor that goes to 0 if the lines are parallel
 def closest_point_2_lines(oa, da, ob, db): 
@@ -66,6 +67,7 @@ if __name__ == '__main__':
     parser.add_argument('--images', type=str, default='images_8', help="images folder (do not include full path, e.g., just use `images_4`)")
     parser.add_argument('--downscale', type=float, default=8, help="image size down scale, e.g., 4")
     parser.add_argument('--hold', type=int, default=8, help="hold out for validation every $ images")
+    parser.add_argument('--scene', type=str, help='scene name')
 
     opt = parser.parse_args()
     print(f'[INFO] process {opt.path}')
@@ -141,8 +143,11 @@ if __name__ == '__main__':
     # construct frames
 
     all_ids = np.arange(N)
-    test_ids = all_ids[::opt.hold]
-    train_ids = np.array([i for i in all_ids if i not in test_ids])
+
+    all_data_splits = json.load(open(opt.data_split_file))
+    scene_data_split = all_data_splits[opt.scene]
+    train_ids = np.array(scene_data_split["train"])
+    test_ids = np.array(scene_data_split["test"])
 
     frames_train = []
     frames_test = []
