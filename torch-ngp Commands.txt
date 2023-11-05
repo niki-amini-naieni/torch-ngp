@@ -4,7 +4,7 @@ torch-ngp Commands
 > python scripts/llff2nerf.py data/nerf_llff_data/fern --scene "fern"
 
 [Train Model]
-> python main_nerf.py data/nerf_llff_data/fern --workspace fern_m_1 --iters 5000 --seed 0 -O
+> python main_nerf.py data/nerf_llff_data/fern --workspace fern_m_1 --iters 5000 --seed 0 -O >>./fern_m_1_train.log 2>&1 &
 
 [Evaluate Ensemble]
 > python eval_ensemble.py data/nerf_llff_data/fern --workspace "fern" --M 5 -O
