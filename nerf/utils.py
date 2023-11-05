@@ -321,16 +321,13 @@ class NLLMeter:
         self.N = 0
 
         def nll(truths, preds, vars):
-            truths = truths.flatten(end_dim=-2)
-            preds = preds.flatten(end_dim=-2)
-            vars = vars.flatten(end_dim=-2)
+            truths = truths.flatten(end_dim=-2).cpu().numpy()
+            preds = preds.flatten(end_dim=-2).cpu().numpy()
+            vars = vars.flatten(end_dim=-2).cpu().numpy()
             covs = []
             for px in vars:
                 covs.append(np.diag(px))
-            print(len(covs))
-            print(covs[0].shape)
-            print(covs[0])
-            covs = torch.from_numpy(np.array(covs))
+            covs = np.array(covs)
             print(truths.shape)
             print(preds.shape)
             print(vars.shape)
