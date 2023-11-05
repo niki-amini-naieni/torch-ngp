@@ -33,7 +33,7 @@ import lpips
 from torchmetrics.functional import structural_similarity_index_measure
 from scipy.stats import multivariate_normal
 
-EPS = 1e-5
+EPS = 1e-12
 
 def custom_meshgrid(*args):
     # ref: https://pytorch.org/docs/stable/generated/torch.meshgrid.html?highlight=meshgrid#torch.meshgrid
@@ -332,8 +332,8 @@ class NLLMeterEpist:
                 mu = preds[px_ind]
                 var = np.mean(vars[px_ind], axis=-1)
                 epistem = epistems[px_ind]
-                var = var + epistem + EPS
-                log_pdf = np.log((np.exp(-0.5 * (gt[0] - mu[0]) ** 2 / var) / np.sqrt(var * 2.0 * np.pi)) + EPS) + np.log((np.exp(-0.5 * (gt[1] - mu[1]) ** 2 / var) / np.sqrt(var * 2.0 * np.pi)) + EPS) + np.log((np.exp(-0.5 * (gt[2] - mu[2]) ** 2 / var) / np.sqrt(var * 2.0 * np.pi)) + EPS)
+                var = var + epistem
+                log_pdf = np.log((np.exp(-0.5 * (gt - mu) ** 2 / var) / np.sqrt(var * 2.0 * np.pi)).prod() + EPS)
                 log_pdf_vals.append(-log_pdf)
             return np.mean(log_pdf_vals)
         
@@ -378,8 +378,8 @@ class NLLMeter:
             for px_ind in range(vars.shape[0]):
                 gt = truths[px_ind]
                 mu = preds[px_ind]
-                var = vars[px_ind] + EPS
-                log_pdf = np.log((np.exp(-0.5 * (gt[0] - mu[0]) ** 2 / var) / np.sqrt(var * 2.0 * np.pi)) + EPS) + np.log((np.exp(-0.5 * (gt[1] - mu[1]) ** 2 / var) / np.sqrt(var * 2.0 * np.pi)) + EPS) + np.log((np.exp(-0.5 * (gt[2] - mu[2]) ** 2 / var) / np.sqrt(var * 2.0 * np.pi)) + EPS)
+                var = vars[px_ind] 
+                log_pdf = np.log((np.exp(-0.5 * (gt - mu) ** 2 / var) / np.sqrt(var * 2.0 * np.pi)).prod() + EPS)
                 log_pdf_vals.append(-log_pdf)
             return np.mean(log_pdf_vals)
         
