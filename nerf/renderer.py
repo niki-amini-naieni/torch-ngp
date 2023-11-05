@@ -219,7 +219,13 @@ class NeRFRenderer(nn.Module):
         #print(xyzs.shape, 'valid_rgb:', mask.sum().item())
 
         # calculate weight_sum (mask)
+        print("Weights shape:")
+        print(weights.shape)
         weights_sum = weights.sum(dim=-1) # [N]
+        print("Weights sum shape:")
+        print(weights_sum.shape)
+        print("Weights sum:")
+        print(weights_sum)
         
         # calculate depth 
         ori_z_vals = ((z_vals - nears) / (fars - nears)).clamp(0, 1)
@@ -227,6 +233,12 @@ class NeRFRenderer(nn.Module):
 
         # calculate color
         image = torch.sum(weights.unsqueeze(-1) * rgbs, dim=-2) # [N, 3], in [0, 1]
+        print("Image shape:")
+        print(image.shape)
+        print("Weights unsqueezed shape:")
+        print(weights.unsqueeze(-1).shape)
+        print("RGBs shape:")
+        print(rgbs.shape)
 
         # mix background color
         if self.bg_radius > 0:
