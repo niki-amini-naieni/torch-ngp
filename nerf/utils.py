@@ -33,7 +33,7 @@ import lpips
 from torchmetrics.functional import structural_similarity_index_measure
 from scipy.stats import multivariate_normal
 
-EPS = 1e-8
+EPS = 1e-5
 
 def custom_meshgrid(*args):
     # ref: https://pytorch.org/docs/stable/generated/torch.meshgrid.html?highlight=meshgrid#torch.meshgrid
