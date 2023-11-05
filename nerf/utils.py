@@ -326,11 +326,11 @@ class NLLMeter:
             vars = vars.flatten(end_dim=-2)
             covs = []
             for px in vars:
-                covs.append(torch.diag(px))
+                covs.append(np.diag(px))
             print(len(covs))
             print(covs[0].shape)
             print(covs[0])
-            covs = torch.tensor(covs)
+            covs = torch.from_numpy(np.array(covs))
             print(truths.shape)
             print(preds.shape)
             print(vars.shape)
