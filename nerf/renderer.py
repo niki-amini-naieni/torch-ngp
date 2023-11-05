@@ -382,6 +382,7 @@ class NeRFRenderer(nn.Module):
             depth = torch.clamp(depth - nears, min=0) / (fars - nears)
             image = image.view(*prefix, 3)
             depth = depth.view(*prefix)
+            results['weights_sum'] = weights_sum
         
         results['depth'] = depth
         results['image'] = image

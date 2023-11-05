@@ -377,7 +377,8 @@ def get_ensemble_metrics(ensemble, loader):
             for model in ensemble:
                 with torch.no_grad():
                     with torch.cuda.amp.autocast(enabled=model.fp16):
-                        preds, _, truths, _ = model.eval_step(data)
+                        preds, _, truths, _, weights_sum = model.eval_step_ensemble(data)
+                        print(weights_sum)
                 preds_ensemble.append(preds.cpu().numpy())
             preds = torch.from_numpy(np.array(preds_ensemble).sum(axis=0) / M)
             vars = torch.from_numpy(np.array(preds_ensemble).var(axis=0))
@@ -668,6 +669,33 @@ class Trainer(object):
         loss = self.criterion(pred_rgb, gt_rgb).mean()
 
         return pred_rgb, pred_depth, gt_rgb, loss
+    
+    def eval_step_ensemble(self, data):
+
+        rays_o = data['rays_o'] # [B, N, 3]
+        rays_d = data['rays_d'] # [B, N, 3]
+        images = data['images'] # [B, H, W, 3/4]
+        B, H, W, C = images.shape
+
+        if self.opt.color_space == 'linear':
+            images[..., :3] = srgb_to_linear(images[..., :3])
+
+        # eval with fixed background color
+        bg_color = 1
+        if C == 4:
+            gt_rgb = images[..., :3] * images[..., 3:] + bg_color * (1 - images[..., 3:])
+        else:
+            gt_rgb = images
+        
+        outputs = self.model.render(rays_o, rays_d, staged=True, bg_color=bg_color, perturb=False, **vars(self.opt))
+
+        pred_rgb = outputs['image'].reshape(B, H, W, 3)
+        pred_depth = outputs['depth'].reshape(B, H, W)
+        weights_sum = outputs['weights_sum'].reshape(B, H, W)
+
+        loss = self.criterion(pred_rgb, gt_rgb).mean()
+
+        return pred_rgb, pred_depth, gt_rgb, loss, weights_sum
 
     # moved out bg_color and perturb for more flexible control...
     def test_step(self, data, bg_color=None, perturb=False):  
