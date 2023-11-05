@@ -335,8 +335,8 @@ def get_ensemble_metrics(ensemble, loader):
             for metric in ensemble[0].metrics:
                 metric.update(preds, truths)
         
+        print("Ensemble Metrics:")
         for metric in ensemble[0].metrics:
-            print("Ensemble Metrics:")
             print(metric.report())
             metric.clear()
 
