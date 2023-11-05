@@ -1,0 +1,10 @@
+torch-ngp Commands
+
+[Generate LLFF Data]
+> python scripts/llff2nerf.py data/nerf_llff_data/fern --scene "fern"
+
+[Train Model]
+> python main_nerf.py data/nerf_llff_data/fern --workspace fern_m_1 --iters 5000 --seed 0 -O
+
+[Evaluate Ensemble]
+> python eval_ensemble.py data/nerf_llff_data/fern --workspace "fern" --M 5 -O
