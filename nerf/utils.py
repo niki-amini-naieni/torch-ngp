@@ -320,7 +320,7 @@ class NLLMeterEpist:
         self.N = 0
 
         def nll(truths, preds, vars, epistems):
-            eps = 1e-8
+            eps = 1e-12
             truths = truths.flatten(end_dim=-2).cpu().numpy()
             preds = preds.flatten(end_dim=-2).cpu().numpy()
             vars = vars.flatten(end_dim=-2).cpu().numpy()
