@@ -313,7 +313,56 @@ class LPIPSMeter:
 
     def report(self):
         return f'LPIPS ({self.net}) = {self.measure():.6f}'
+
+class NLLMeterEpist:
+    def __init__(self):
+        self.V = 0
+        self.N = 0
+
+        def nll(truths, preds, vars, epistems):
+            eps = 1e-5
+            truths = truths.flatten(end_dim=-2).cpu().numpy()
+            preds = preds.flatten(end_dim=-2).cpu().numpy()
+            vars = vars.flatten(end_dim=-2).cpu().numpy()
+            epistems = epistems.flatten().cpu().numpy()
+            log_pdf_vals = []
+            for px_ind in range(vars.shape[0]):
+                gt = truths[px_ind]
+                mu = preds[px_ind]
+                var = np.mean(vars[px_ind], axis=-1)
+                epistem = epistems[px_ind]
+                var = var + epistem + eps
+                log_pdf = np.log((np.exp(-0.5 * (gt - mu) ** 2 / var) / np.sqrt(var * 2.0 * np.pi)).prod() + eps)
+                log_pdf_vals.append(-log_pdf)
+            return np.mean(log_pdf_vals)
+        
+        self.fn = nll
+
+    def clear(self):
+        self.V = 0
+        self.N = 0
+
+    def prepare_inputs(self, *inputs):
+        outputs = []
+        for i, inp in enumerate(inputs):
+            inp = inp.permute(0, 3, 1, 2).contiguous() # [B, 3, H, W]
+            inp = inp.to(self.device)
+            outputs.append(inp)
+        return outputs
     
+    def update(self, preds, truths, vars, epistems):
+        v = self.fn(truths, preds, vars, epistems).item() # normalize=True: [0, 1] to [-1, 1]
+        self.V += v
+        self.N += 1
+    
+    def measure(self):
+        return self.V / self.N
+
+    def write(self, writer, global_step, prefix=""):
+        writer.add_scalar(os.path.join(prefix, f"NLL"), self.measure(), global_step)
+
+    def report(self):
+        return f'Epist. NLL = {self.measure():.6f}'
 
 class NLLMeter:
     def __init__(self):
@@ -360,7 +409,7 @@ class NLLMeter:
         writer.add_scalar(os.path.join(prefix, f"NLL"), self.measure(), global_step)
 
     def report(self):
-        return f'NLL = {self.measure():.6f}'
+        return f'No Epist. NLL = {self.measure():.6f}'
 
 
 def get_ensemble_metrics(ensemble, loader):
@@ -374,20 +423,24 @@ def get_ensemble_metrics(ensemble, loader):
 
         for data in loader:
             preds_ensemble = []
+            weights_sum_ensemble = []
             for model in ensemble:
                 with torch.no_grad():
                     with torch.cuda.amp.autocast(enabled=model.fp16):
                         preds, _, truths, _, weights_sum = model.eval_step_ensemble(data)
-                        print(weights_sum)
                 preds_ensemble.append(preds.cpu().numpy())
+                weights_sum_ensemble.append(weights_sum.cpu().numpy())
             preds = torch.from_numpy(np.array(preds_ensemble).sum(axis=0) / M)
             vars = torch.from_numpy(np.array(preds_ensemble).var(axis=0))
+            epistem = (1 - torch.from_numpy(np.array(weights_sum_ensemble).sum(axis=0) / M)) ** 2
             # Use the first ensemble member to save results.
             for metric in ensemble[0].metrics:
-                if not isinstance(metric, NLLMeter):
-                    metric.update(preds, truths)
-                else:
+                if isinstance(metric, NLLMeterEpist):
+                    metric.update(preds, truths, vars, epistem)
+                elif isinstance(metric, NLLMeter):
                     metric.update(preds, truths, vars)
+                else:
+                    metric.update(preds, truths)
         
         print("Ensemble Metrics:")
         for metric in ensemble[0].metrics:
