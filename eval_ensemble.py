@@ -113,7 +113,7 @@ if __name__ == '__main__':
     # decay to 0.1 * init_lr at last iter step
     scheduler = lambda optimizer: optim.lr_scheduler.LambdaLR(optimizer, lambda iter: 0.1 ** min(iter / opt.iters, 1))
 
-    metrics = [PSNRMeter(), LPIPSMeter(device=device), SSIMMeter(device=device)]
+    metrics = [PSNRMeter(), LPIPSMeter(device=device), SSIMMeter(device=device), NLLMeter()]
 
     ensembles = []
     for model_ind in range(opt.M):
