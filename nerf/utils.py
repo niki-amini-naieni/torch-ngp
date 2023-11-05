@@ -321,6 +321,7 @@ class NLLMeter:
         self.N = 0
 
         def nll(truths, preds, vars):
+            eps = 1e-12
             truths = truths.flatten(end_dim=-2).cpu().numpy()
             preds = preds.flatten(end_dim=-2).cpu().numpy()
             vars = vars.flatten(end_dim=-2).cpu().numpy()
@@ -328,8 +329,8 @@ class NLLMeter:
             for px_ind in range(vars.shape[0]):
                 gt = truths[px_ind]
                 mu = preds[px_ind]
-                var = vars[px_ind]
-                log_pdf = np.log(np.exp(-0.5 * (gt - mu) ** 2 / var) / np.sqrt(var * 2.0 * np.pi) + 1e-5).sum()
+                var = vars[px_ind] + eps
+                log_pdf = np.log(np.exp(-0.5 * (gt - mu) ** 2 / var) / np.sqrt(var * 2.0 * np.pi).prod() + eps)
                 log_pdf_vals.append(-log_pdf)
             return np.mean(log_pdf_vals)
         
