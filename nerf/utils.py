@@ -326,6 +326,7 @@ class NLLMeter:
             vars = vars.flatten(end_dim=-2).cpu().numpy()
             log_pdf_vals = []
             for px_ind in range(vars.shape[0]):
+                print(np.diag(vars[px_ind]))
                 log_pdf_vals.append(
                     np.log(
                         multivariate_normal(truths[px_ind], preds[px_ind], np.diag(vars[px_ind]))
