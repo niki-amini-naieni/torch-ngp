@@ -313,6 +313,32 @@ class LPIPSMeter:
     def report(self):
         return f'LPIPS ({self.net}) = {self.measure():.6f}'
 
+
+def get_ensemble_metrics(ensemble, loader):
+        M = len(ensemble)
+
+        # Use the first ensemble member to report results.
+        for metric in ensemble[0].metrics:
+            metric.clear()
+        for model in ensemble:
+            model.model.eval()
+
+        preds_ensemble = []
+        for data in loader:
+            for model in ensemble:
+                with torch.no_grad():
+                    with torch.cuda.amp.autocast(enabled=model.fp16):
+                        preds, _, truths, _ = model.eval_step(data)
+                    preds_ensemble.append(preds)
+            preds = np.array(preds_ensemble).sum(axis=0) / M
+            # Use the first ensemble member to save results.
+            for metric in ensemble[0].metrics:
+                metric.update(preds, truths)
+        
+        for metric in ensemble[0].metrics:
+            print(metric.report())
+            metric.clear()
+
 class Trainer(object):
     def __init__(self, 
                  name, # name of this experiment
