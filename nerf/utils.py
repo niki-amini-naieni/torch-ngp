@@ -329,7 +329,8 @@ class NLLMeterEpist:
             for px_ind in range(vars.shape[0]):
                 gt = truths[px_ind]
                 mu = preds[px_ind]
-                var = np.mean(vars[px_ind], axis=-1)
+                #var = np.mean(vars[px_ind], axis=-1)
+                var = vars[px_ind]
                 epistem = epistems[px_ind]
                 var = var + epistem + eps
                 log_pdf = np.log((np.exp(-0.5 * (gt - mu) ** 2 / var) / np.sqrt(var * 2.0 * np.pi)).prod() + eps)
