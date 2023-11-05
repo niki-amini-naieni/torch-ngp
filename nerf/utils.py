@@ -328,6 +328,12 @@ class NLLMeter:
             for px in vars:
                 covs.append(torch.diag(px))
             covs = torch.tensor(covs)
+            print(truths.shape)
+            print(preds.shape)
+            print(vars.shape)
+            print(covs.shape)
+            print(multivariate_normal(truths, preds, covs).shape)
+            print(torch.log(multivariate_normal(truths, preds, covs)).mean().shape)
             return torch.log(multivariate_normal(truths, preds, covs)).mean()
         
         self.fn = nll
