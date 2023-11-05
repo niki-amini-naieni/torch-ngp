@@ -327,6 +327,9 @@ class NLLMeter:
             covs = []
             for px in vars:
                 covs.append(torch.diag(px))
+            print(len(covs))
+            print(covs[0].shape)
+            print(covs[0])
             covs = torch.tensor(covs)
             print(truths.shape)
             print(preds.shape)
