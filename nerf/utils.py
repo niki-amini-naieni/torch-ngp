@@ -326,11 +326,11 @@ class NLLMeter:
             vars = vars.flatten(end_dim=-2).cpu().numpy()
             log_pdf_vals = []
             for px_ind in range(vars.shape[0]):
-                log_pdf_vals.append(
-                    -np.log(
-                        multivariate_normal.pdf(truths[px_ind], mean=preds[px_ind], cov=np.diag(vars[px_ind]), allow_singular=False)
-                           ) + 1e-12
-                    )
+                gt = truths[px_ind]
+                mu = preds[px_ind]
+                var = vars[px_ind]
+                log_pdf = np.log(np.exp(-0.5 * (gt - mu) ** 2 / var) / np.sqrt(var * 2.0 * np.pi) + 1e-12).sum()
+                log_pdf_vals.append(log_pdf)
             return np.mean(log_pdf_vals)
         
         self.fn = nll
