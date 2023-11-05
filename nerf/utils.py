@@ -331,12 +331,12 @@ def get_ensemble_metrics(ensemble, loader):
                         preds, _, truths, _ = model.eval_step(data)
                 preds_ensemble.append(preds.cpu().numpy())
             preds = torch.from_numpy(np.array(preds_ensemble).sum(axis=0) / M)
-            print(preds.shape)
             # Use the first ensemble member to save results.
             for metric in ensemble[0].metrics:
                 metric.update(preds, truths)
         
         for metric in ensemble[0].metrics:
+            print("Ensemble Metrics:")
             print(metric.report())
             metric.clear()
 
