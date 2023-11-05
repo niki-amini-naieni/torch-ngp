@@ -329,8 +329,8 @@ def get_ensemble_metrics(ensemble, loader):
                 with torch.no_grad():
                     with torch.cuda.amp.autocast(enabled=model.fp16):
                         preds, _, truths, _ = model.eval_step(data)
-                preds_ensemble.append(preds.cpu())
-                print(preds_ensemble)
+                preds_ensemble.append(preds.cpu().numpy())
+            print(np.array(preds_ensemble).shape)
             preds = np.array(preds_ensemble).sum(axis=0) / M
             # Use the first ensemble member to save results.
             for metric in ensemble[0].metrics:
