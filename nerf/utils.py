@@ -324,17 +324,14 @@ class NLLMeter:
             truths = truths.flatten(end_dim=-2).cpu().numpy()
             preds = preds.flatten(end_dim=-2).cpu().numpy()
             vars = vars.flatten(end_dim=-2).cpu().numpy()
-            covs = []
-            for px in vars:
-                covs.append(np.diag(px))
-            covs = np.array(covs)
-            print(truths.shape)
-            print(preds.shape)
-            print(vars.shape)
-            print(covs.shape)
-            print(multivariate_normal(truths, preds, covs).shape)
-            print(torch.log(multivariate_normal(truths, preds, covs)).mean().shape)
-            return torch.log(multivariate_normal(truths, preds, covs)).mean()
+            log_pdf_vals = []
+            for px_ind in range(vars.shape[0]):
+                log_pdf_vals.append(
+                    np.log(
+                        multivariate_normal(truths[px_ind], preds[px_ind], np.diag(vars[px_ind]))
+                           )
+                    )
+            return np.mean(log_pdf_vals)
         
         self.fn = nll
 
