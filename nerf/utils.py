@@ -329,7 +329,7 @@ class NLLMeter:
                 print(np.diag(vars[px_ind]))
                 log_pdf_vals.append(
                     np.log(
-                        multivariate_normal(truths[px_ind], mean=preds[px_ind], cov=np.diag(vars[px_ind]), allow_singular=False)
+                        multivariate_normal.pdf(truths[px_ind], mean=preds[px_ind], cov=np.diag(vars[px_ind]), allow_singular=False)
                            )
                     )
             return np.mean(log_pdf_vals)
